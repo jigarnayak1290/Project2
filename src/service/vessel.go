@@ -25,3 +25,15 @@ func (vs *VesselService) ListVessel() {
 		fmt.Printf("Vessel : %d, ", vessel.ID)
 	}
 }
+
+func (vs *VesselService) GetVesselByNaccsCode(naccs_code string) {
+	vessel, err := vs.vesselRe.GetVesselByNaccsCode(naccs_code)
+
+	if err != nil {
+		fmt.Println("Failed to retrive vessle data")
+		return
+	}
+
+	fmt.Printf("\n\nVessel name : %s, \t Vessel naccs code ; %s", vessel.Vessel_name, vessel.Naccs_code)
+
+}

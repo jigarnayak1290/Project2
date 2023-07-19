@@ -10,6 +10,7 @@ import (
 
 type VesselRepo interface {
 	GetAllVessel() ([]VesselData, error)
+	GetVesselByNaccsCode(vesselID string) (VesselData, error)
 }
 
 type DBVesselRepo struct {
@@ -23,6 +24,16 @@ func (dbVRepo DBVesselRepo) GetAllVessel() ([]VesselData, error) {
 	}
 
 	return vessels, nil
+}
+
+func (dbVRepo DBVesselRepo) GetVesselByNaccsCode(vesselID string) (VesselData, error) {
+
+	vessels := []VesselData{
+		VesselData{ID: 1, Naccs_code: "n1", Vessel_name: "v1", Owner_name: "o1", Modified_person_name: "m1"},
+		VesselData{ID: 1, Naccs_code: "n2", Vessel_name: "v3", Owner_name: "o2", Modified_person_name: "m2"},
+	}
+
+	return vessels[0], nil
 }
 
 type PostGresDBVesselRepo struct {
@@ -69,4 +80,27 @@ func (pdb PostGresDBVesselRepo) GetAllVessel() ([]VesselData, error) {
 	}
 
 	return vessels, nil
+}
+
+func (pdb PostGresDBVesselRepo) GetVesselByNaccsCode(naccsCode string) (VesselData, error) {
+	fmt.Printf("\nGiven naccs code : %s", naccsCode)
+	sqlStatement := `SELECT naccs_code, vessel_name FROM vessel WHERE naccs_code=$1;`
+	//sqlStatement := `SELECT naccs_code, vessel_name FROM vessel where naccs_code = $1`
+	var vessel_name string
+	var naccs_code string
+	var VesselData VesselData
+
+	row := dbObj.QueryRow(sqlStatement, naccsCode)
+	switch err := row.Scan(&naccs_code, &vessel_name); err {
+	case sql.ErrNoRows:
+		fmt.Println("No row returned")
+	case nil:
+		fmt.Println("Matching data returned")
+		VesselData.Naccs_code = naccs_code
+		VesselData.Vessel_name = vessel_name
+	default:
+		fmt.Printf("\nPanic no rows returned with %s", sqlStatement)
+	}
+
+	return VesselData, nil
 }
