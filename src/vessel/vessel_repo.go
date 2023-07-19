@@ -11,6 +11,7 @@ import (
 type VesselRepo interface {
 	GetAllVessel() ([]VesselData, error)
 	GetVesselByNaccsCode(vesselID string) (VesselData, error)
+	AddVessel(vsl *VesselData)
 }
 
 type DBVesselRepo struct {
@@ -103,4 +104,17 @@ func (pdb PostGresDBVesselRepo) GetVesselByNaccsCode(naccsCode string) (VesselDa
 	}
 
 	return VesselData, nil
+}
+
+func (pdb PostGresDBVesselRepo) AddVessel(vsl *VesselData) {
+	fmt.Printf("\n New vessel name : %s", vsl.Vessel_name)
+	sqlStatement := `insert into vessel (vessel_name, naccs_code) VALUES ($1, $2) returning id;`
+
+	id := 0
+	err := dbObj.QueryRow(sqlStatement, vsl.Vessel_name, vsl.Naccs_code).Scan(&id)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("New record ID is:", id)
 }

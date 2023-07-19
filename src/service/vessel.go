@@ -37,3 +37,9 @@ func (vs *VesselService) GetVesselByNaccsCode(naccs_code string) {
 	fmt.Printf("\n\nVessel name : %s, \t Vessel naccs code ; %s", vessel.Vessel_name, vessel.Naccs_code)
 
 }
+
+func (vs *VesselService) AddVessel(vsl *vessel.VesselData) {
+	vs.vesselRe.AddVessel(vsl)
+
+	fmt.Printf("\n\nVessel name : %s, \t Vessel naccs code ; %s", vsl.Vessel_name, vsl.Naccs_code)
+}

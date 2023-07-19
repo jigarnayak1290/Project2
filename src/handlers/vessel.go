@@ -43,10 +43,14 @@ func (v *Vessel) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 				http.Error(rw, "invalid Parameter received", http.StatusBadRequest)
 				return
 			}
-			v.GetVesselByNaccsCode(queryParams.Get("naccs_code"), rw, r)
+			v.getVesselByNaccsCode(queryParams.Get("naccs_code"), rw, r)
 		}
 
 		return
+	}
+
+	if r.Method == http.MethodPost {
+		v.addVessel(rw, r)
 	}
 
 }
@@ -63,7 +67,7 @@ func (v *Vessel) getVessels(rw http.ResponseWriter, r *http.Request) {
 	serv.ListVessel()
 }
 
-func (v *Vessel) GetVesselByNaccsCode(naccs_code string, rw http.ResponseWriter, r *http.Request) {
+func (v *Vessel) getVesselByNaccsCode(naccs_code string, rw http.ResponseWriter, r *http.Request) {
 	v.l.Println("Http get Vessel")
 
 	// DBrp := vessel.DBVesselRepo{}
@@ -74,4 +78,22 @@ func (v *Vessel) GetVesselByNaccsCode(naccs_code string, rw http.ResponseWriter,
 	PostDBrp.DBInit("localhost", 5432, "postgres", "mysecretpassword", "postgres")
 	serv := service.NewVesselService(PostDBrp)
 	serv.GetVesselByNaccsCode(naccs_code)
+}
+
+func (v *Vessel) addVessel(rw http.ResponseWriter, r *http.Request) {
+	v.l.Println("\nHttp add method")
+
+	vesl := &vessel.VesselData{}
+	err := vesl.FromJSON(r.Body)
+
+	if err != nil {
+		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	v.l.Printf("Vessel : %#v", vesl)
+	PostDBrp := vessel.PostGresDBVesselRepo{}
+	PostDBrp.DBInit("localhost", 5432, "postgres", "mysecretpassword", "postgres")
+	serv := service.NewVesselService(PostDBrp)
+	serv.AddVessel(vesl)
+
 }
