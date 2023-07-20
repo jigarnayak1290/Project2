@@ -1,6 +1,7 @@
 # Simple Vassel
 
 Vassel detail program (With DataBase connection of postgres of docker image)
+Note : Docker should be installed in your PC to run this program
 
 ## Usage
 
