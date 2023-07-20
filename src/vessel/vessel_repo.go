@@ -3,6 +3,7 @@ package vessel
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -62,6 +63,27 @@ func (pdb PostGresDBVesselRepo) DBInit(host string, port int, user string, passw
 	return
 }
 
+func (pdb PostGresDBVesselRepo) CreateTable() {
+
+	// Create the table if it doesn't exist
+	createTableQuery := `
+	CREATE TABLE IF NOT EXISTS vessel (
+		id SERIAL,
+		naccs_code text PRIMARY KEY,
+		vessel_name TEXT,
+		owner_name TEXT,
+		modified_person_name TEXT,
+		notes TEXT
+	  );`
+	_, err := dbObj.Exec(createTableQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("DB created!")
+	return
+}
+
 func (pdb PostGresDBVesselRepo) GetAllVessel() ([]VesselData, error) {
 
 	sqlStatement := `SELECT * FROM vessel LIMIT 10`
@@ -109,10 +131,10 @@ func (pdb PostGresDBVesselRepo) GetVesselByNaccsCode(naccsCode string) (VesselDa
 
 func (pdb PostGresDBVesselRepo) AddVessel(vsl *VesselData) {
 	fmt.Printf("\n New vessel name : %s", vsl.Vessel_name)
-	sqlStatement := `insert into vessel (vessel_name, naccs_code) VALUES ($1, $2) returning id;`
+	sqlStatement := `insert into vessel (vessel_name, naccs_code, owner_name, modified_person_name, notes) VALUES ($1, $2, $3, $4, $5) returning id;`
 
 	id := 0
-	err := dbObj.QueryRow(sqlStatement, vsl.Vessel_name, vsl.Naccs_code).Scan(&id)
+	err := dbObj.QueryRow(sqlStatement, vsl.Vessel_name, vsl.Naccs_code, vsl.Owner_name, vsl.Modified_person_name, vsl.Notes).Scan(&id)
 	if err != nil {
 		panic(err)
 	}

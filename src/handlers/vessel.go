@@ -13,6 +13,9 @@ type Vessel struct {
 }
 
 func NewVessel(l *log.Logger) *Vessel {
+	PostDBrp := vessel.PostGresDBVesselRepo{}
+	PostDBrp.DBInit("localhost", 5432, "postgres", "mysecretpassword", "postgres")
+	PostDBrp.CreateTable()
 	return &Vessel{l}
 }
 
@@ -91,6 +94,8 @@ func (v *Vessel) addVessel(rw http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+		v.l.Printf("\n Error msg id : %s", err)
+		return
 	}
 
 	v.l.Printf("Vessel : %#v", vesl)
