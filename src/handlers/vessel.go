@@ -52,6 +52,9 @@ func (v *Vessel) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		v.addVessel(rw, r)
 	}
+	if r.Method == http.MethodPut {
+		v.updateVessel(rw, r)
+	}
 
 }
 
@@ -95,5 +98,23 @@ func (v *Vessel) addVessel(rw http.ResponseWriter, r *http.Request) {
 	PostDBrp.DBInit("localhost", 5432, "postgres", "mysecretpassword", "postgres")
 	serv := service.NewVesselService(PostDBrp)
 	serv.AddVessel(vesl)
+
+}
+
+func (v *Vessel) updateVessel(rw http.ResponseWriter, r *http.Request) {
+	v.l.Println("\nHttp update method")
+
+	vesl := &vessel.VesselData{}
+	err := vesl.FromJSON(r.Body)
+
+	if err != nil {
+		http.Error(rw, "Unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	v.l.Printf("Vessel : %#v", vesl)
+	PostDBrp := vessel.PostGresDBVesselRepo{}
+	PostDBrp.DBInit("localhost", 5432, "postgres", "mysecretpassword", "postgres")
+	serv := service.NewVesselService(PostDBrp)
+	serv.UpdateVessel(vesl)
 
 }

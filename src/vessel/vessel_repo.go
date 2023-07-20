@@ -12,6 +12,7 @@ type VesselRepo interface {
 	GetAllVessel() ([]VesselData, error)
 	GetVesselByNaccsCode(vesselID string) (VesselData, error)
 	AddVessel(vsl *VesselData)
+	UpdateVessel(vsl *VesselData) (res bool)
 }
 
 type DBVesselRepo struct {
@@ -117,4 +118,28 @@ func (pdb PostGresDBVesselRepo) AddVessel(vsl *VesselData) {
 	}
 
 	fmt.Println("New record ID is:", id)
+}
+
+func (pdb PostGresDBVesselRepo) UpdateVessel(vsl *VesselData) (res bool) {
+	fmt.Printf("\n Update vessel name : %s", vsl.Vessel_name)
+
+	vslData, err := pdb.GetVesselByNaccsCode(vsl.Naccs_code)
+	if err != nil {
+		fmt.Printf("\n Error in search naccs code : %s", vsl.Naccs_code)
+		panic(err)
+	}
+	if vslData.Naccs_code == "" {
+		fmt.Printf("\n No vessel found for Given naccs code : %s", vslData.Naccs_code)
+		return false
+	}
+
+	sqlStatement := `update vessel set vessel_name=$1, owner_name=$2 where naccs_code=$3;`
+
+	_, err1 := dbObj.Exec(sqlStatement, vsl.Vessel_name, vsl.Owner_name, vsl.Naccs_code)
+	if err1 != nil {
+		panic(err)
+	}
+
+	fmt.Println("Vessel record is update for naccs code :", vsl.Naccs_code)
+	return true
 }

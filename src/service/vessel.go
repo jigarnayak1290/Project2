@@ -43,3 +43,14 @@ func (vs *VesselService) AddVessel(vsl *vessel.VesselData) {
 
 	fmt.Printf("\n\nVessel name : %s, \t Vessel naccs code ; %s", vsl.Vessel_name, vsl.Naccs_code)
 }
+
+func (vs *VesselService) UpdateVessel(vsl *vessel.VesselData) (res bool) {
+	resData := vs.vesselRe.UpdateVessel(vsl)
+
+	if resData {
+		fmt.Printf("\n\nVessel name : %s, \t Vessel naccs code ; %s", vsl.Vessel_name, vsl.Naccs_code)
+		return true
+	}
+
+	return false
+}
